@@ -15,6 +15,8 @@ class AudioEncoder(nn.Module):
 
         self.conv4 = nn.Conv1d(256, 512, 3, padding='same')
 
+        self.relu = nn.ReLU()
+
     def reparameterize(self, mu, log_var):
         std = torch.exp(0.5*log_var) 
         eps = torch.randn_like(std) 
@@ -22,10 +24,10 @@ class AudioEncoder(nn.Module):
         data = sample.clone()
 
 
-        data = data.reshape(sample.size(0), -1)
-        data -= data.min(1, keepdim=True)[0]
-        data /= data.max(1, keepdim=True)[0]
-        data = data.view(sample.size(0), sample.size(1), sample.size(2))
+        # data = data.reshape(sample.size(0), -1)
+        # data -= data.min(1, keepdim=True)[0]
+        # data /= data.max(1, keepdim=True)[0]
+        # data = data.view(sample.size(0), sample.size(1), sample.size(2))
 
         return data
 
@@ -33,8 +35,11 @@ class AudioEncoder(nn.Module):
     def forward(self, x): 
         
         x = self.conv1(x)
+        x = self.relu(x)
         x = self.conv2(x)
+        x = self.relu(x)
         x = self.conv3(x)
+        x = self.relu(x)
         x = self.conv4(x)
         
         out = torch.transpose(x, 1, 2)

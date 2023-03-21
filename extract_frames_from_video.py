@@ -16,6 +16,7 @@ def extract_frames(video_path, output_dir, width, height):
             break
         img = cv2.resize(img, (width, height))
         cv2.imwrite(P.join(save_dir, f"img_{num:05d}.jpg"), img)
+        num += 1
 
 
 

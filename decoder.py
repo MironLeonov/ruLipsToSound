@@ -14,13 +14,19 @@ class Decoder(nn.Module):
         self.conv4 = nn.Conv1d(in_channels=100, out_channels=100, kernel_size=7)
         self.conv5 = nn.Conv1d(in_channels=100, out_channels=80, kernel_size=14)
 
+        self.relu = nn.ReLU()
+
 
     def forward(self, x): 
 
         x = self.conv1(x)
+        x = self.relu(x)
         x = self.conv2(x)
+        x = self.relu(x)
         x = self.conv3(x)
+        x = self.relu(x)
         x = self.conv4(x)
+        x = self.relu(x)
         x = self.conv5(x)
 
         return x

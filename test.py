@@ -21,12 +21,13 @@ test_transformer = transforms.Compose([
     transforms.ToTensor(),
 ])
 
-kl_loss = nn.KLDivLoss(reduction="sum", log_target=False)
+kl_loss = nn.KLDivLoss(reduction="sum", log_target=True)
 mse_loss = nn.MSELoss()
 
 
 test_ds = VideoDataset(root_dir='data/features_data', transform=test_transformer)
-loader = DataLoader(test_ds, batch_size=int(1))
+loader = DataLoader(test_ds, batch_size=int(5))
+print(f'Loader initialized')
 
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -35,19 +36,21 @@ v_enc = VideoEncoder().to(device)
 a_enc = AudioEncoder().to(device)
 decoder = Decoder().to(device)
 
-A_optimizer = optim.Adam([{'params': a_enc.parameters()}, {'params':decoder.parameters()}], lr=0.001, betas=(0.9, 0.999))
-V_optimizer = optim.Adam(v_enc.parameters(), lr=0.001, betas=(0.9, 0.999))
+A_optimizer = optim.Adam([{'params': a_enc.parameters()}, {'params':decoder.parameters()}], lr=0.0002, betas=(0.5, 0.999))
+V_optimizer = optim.Adam(v_enc.parameters(), lr=0.0002, betas=(0.5, 0.999))
+print(f'Models and optimizers initialized')
 
 a_scores = open('a_scores.txt', 'w')
 v_scores = open('v_scores.txt', 'w')
 os.makedirs('checkpoints', exist_ok=True)
-EPOCHS = 100
+EPOCHS = 200
 
 if __name__ == '__main__': 
     train = True
+    print(f'started on {device}')
     for epoch in range(EPOCHS): 
         progress_bar = tqdm(enumerate(loader), total=len(loader))
-        for idx, batch in enumerate(loader):
+        for idx, batch in progress_bar:
             real_mel_spec = batch[0].to(device)
             
             video_frames = batch[1].to(device)
@@ -57,7 +60,7 @@ if __name__ == '__main__':
             
             video_embed = v_enc(video_frames)
 
-            v_loss = kl_loss(video_embed, audio_embed)
+            v_loss = torch.log(kl_loss(F.log_softmax(video_embed, 1), F.log_softmax(audio_embed, 1)))
             V_optimizer.zero_grad()
             v_loss.backward()
             V_optimizer.step()
@@ -78,10 +81,10 @@ if __name__ == '__main__':
                     f'Epoch: {epoch} Iteration: {idx} audio_loss: {a_loss}\n')
 
         if (epoch + 1) % 5 == 0:
-            torch.save(a_enc, f'checkpoints/AudioEncoder_epoch_{epoch}.pth')
-            torch.save(v_enc, f'checkpoints/VideoEncoder_epoch_{epoch}.pth')
-            torch.save(decoder, f'checkpoints/Decoder_epoch_{epoch}.pth')
-            print(f'{epoch} Model saved.')
+            torch.save(a_enc, f'checkpoints/AudioEncoder_epoch_{epoch + 1}.pth')
+            torch.save(v_enc, f'checkpoints/VideoEncoder_epoch_{epoch + 1}.pth')
+            torch.save(decoder, f'checkpoints/Decoder_epoch_{epoch + 1}.pth')
+            print(f'{epoch + 1} Model saved.')
 
 
 

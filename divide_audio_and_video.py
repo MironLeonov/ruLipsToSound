@@ -9,6 +9,7 @@ cut_video_dir = P.join(output_dir, 'videos_algin')
 sr = '16000'
 
 if __name__ == '__main__': 
+    os.makedirs(output_dir, exist_ok=True)
     video_name = os.path.basename(video_path)
     audio_name = video_name.replace(".mp4", ".wav")
 

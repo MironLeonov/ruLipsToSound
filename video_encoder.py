@@ -28,6 +28,7 @@ class VideoEncoder(nn.Module):
         self.conv2 = nn.Conv3d(in_channels=100, out_channels=100, kernel_size=(1, 4, 4), stride=(1, 2, 2))
         self.conv3 = nn.Conv3d(in_channels=100, out_channels=100, kernel_size=3, stride=2)
         self.linear = nn.Linear(in_features=484, out_features=512)
+        self.relu = nn.ReLU()
 
 
         
@@ -39,10 +40,10 @@ class VideoEncoder(nn.Module):
         sample = mu + (eps * std)
         data = sample.clone()
 
-        data = data.view(sample.size(0), -1)
-        data -= data.min(1, keepdim=True)[0]
-        data /= data.max(1, keepdim=True)[0]
-        data = data.view(sample.size(0), sample.size(1), sample.size(2))
+        # data = data.view(sample.size(0), -1)
+        # data -= data.min(1, keepdim=True)[0]
+        # data /= data.max(1, keepdim=True)[0]
+        # data = data.view(sample.size(0), sample.size(1), sample.size(2))
 
         return data
 
@@ -52,8 +53,11 @@ class VideoEncoder(nn.Module):
         batch_size, numbers_of_frames, c, h, w = images.shape
 
         x = self.conv1(images)
+        x = self.relu(x)
         x = self.conv2(x)
+        x = self.relu(x)
         x = self.conv3(x)
+        x = self.relu(x)
         x = torch.reshape(x, (-1, 100, 484))
         out = self.linear(x)
 
