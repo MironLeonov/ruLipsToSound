@@ -49,7 +49,6 @@ class VideoDataset(Dataset):
         audio, sample_rate = librosa.load(audio_path, sr=16000)
         mel = librosa.feature.melspectrogram(y = audio, sr=int(16000), n_fft=int(400), hop_length=int(160), n_mels=int(80))
         mel_spec = torch.tensor(mel[:, :100])
-        mel_spec = (mel_spec - mel_spec.min()) / (mel_spec.max() - mel_spec.min())
 
 
         return mel_spec
