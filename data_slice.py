@@ -5,7 +5,7 @@ video_name = 'posner'
 glob_duration = 62
 
 video_path = f'data/videos_23fps/{video_name}.mp4'
-audio_path = f'data/audio_16000hz/posner{video_name}.wav'
+audio_path = f'data/audio_16000hz/{video_name}.wav'
 output_dir = 'data/features_data'
 
 
